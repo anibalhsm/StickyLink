@@ -10,13 +10,13 @@
 <body>
     <nav>
         <a href="/">
-            <img src="/static/logo.png" alt="Company Logo"> 
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
         </a>
         <a href="/">Home</a>
-        <a href="#products.html">Products</a>
-        <a href="#shop.html">Shop</a>
-        <a href="#contact.html">Contact</a>
-        <a href="#login.html">login</a>
+        <a href="{{ url_for('products') }}">Products</a>
+        <a href="{{ url_for('shop') }}">Shop</a>
+        <a href="{{ url_for('contact') }}">Contact</a>
+        <a href="{{ url_for('login') }}">Login</a>
     </nav>
     <div>
         <h2>Pre-Order!</h2>
