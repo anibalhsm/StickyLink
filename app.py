@@ -22,5 +22,11 @@ def contact():
 def shop():
     return render_template('shop.html')
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:your_password@your_host/your_database'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
