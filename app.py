@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -43,13 +44,35 @@ def register():
 def products():
     return render_template('products.html')
 
-@app.route('/Contact')
-def contact():
-    return render_template('contact.html')
-
 @app.route('/Shop')
 def shop():
     return render_template('shop.html')
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  # replace with your email
+app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'  # replace with your password
+
+mail = Mail(app)
+
+@app.route('/Contact', methods=['GET', 'POST'])
+def contact():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+
+        msg = Message('New contact form submission',
+                      sender='your-email@example.com',
+                      recipients=['200170770@aston.ac.uk'])  # replace with the new recipient's email
+        msg.body = f'From: {name} <{email}>\n\n{message}'
+        mail.send(msg)
+
+        return redirect(url_for('contact'))  # Redirect to the same page to clear the form
+    else:
+        return render_template('contact.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

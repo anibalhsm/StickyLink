@@ -16,27 +16,45 @@
         <a href="{{ url_for('products') }}">Products</a>
         <a href="{{ url_for('shop') }}">Shop</a>
         <a href="{{ url_for('contact') }}">Contact</a>
-        <a href="{{ url_for('login') }}">Login</a>
+        <a href="#" id="login-link">Login</a>
     </nav>
     <div>
-        <h2>Login Form</h2>
-        <form action="{{ url_for('login') }}" method="post">
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username"><br>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password"><br>
-            <input type="submit" value="Submit">
-        </form>
-        <!-- Add this to your HTML file -->
-        <form action="{{ url_for('register') }}" method="post">
-    <label for="username">Username:</label><br>
-    <input type="text" id="username" name="username"><br>
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password"><br>
-    <input type="submit" value="Register">
-        </form>
+        <div id="login-form">
+            <h2>Login Form</h2>
+            <form action="{{ url_for('login') }}" method="post">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="Submit">
+                <a href="#" id="signup-link">Sign Up</a>
+            </form>
+        </div>
+        <div id="signup-form" style="display: none;">
+            <h2>Sign Up Form</h2>
+            <form action="{{ url_for('register') }}" method="post">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="Register">
+            </form>
+        </div>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </p>
     </div>
+    <script>
+        document.getElementById('login-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('signup-form').style.display = 'none';
+        });
+
+        document.getElementById('signup-link').addEventListener('click', function(event) {
+            event.preventDefault();
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
