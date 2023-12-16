@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -23,6 +23,21 @@ def login():
             return 'Invalid username or password'
     else:
         return render_template('login.html')
+
+@app.route('/Register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check if username already exists
+        if username in users:
+            return 'Username already exists'
+        else:
+            users[username] = generate_password_hash(password)
+            return redirect(url_for('login'))
+    else:
+        return render_template('register.html')
 
 @app.route('/Products')
 def products():
