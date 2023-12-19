@@ -38,22 +38,36 @@ def loader_user(user_id):
 def home():
     return render_template('main.html')
 
-@app.route("/login", methods=["GET", "POST"])
-@app.route("/login", methods=["GET", "POST"])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
+        if not username or not password:
+            flash('Username and password are required!', 'danger')
+            return redirect(request.url)
+
         user = Users.query.filter_by(username=username).first()
 
-        if user:
-            password_check = check_password_hash(user.password, password)
-            print(f"Password Check: {password_check}")
+        if not user:
+            flash('User does not exist!', 'danger')
+            return redirect(request.url)
 
-            if password_check:
-                login_user(user)
-                return redirect(url_for("account"))
+        password_check = check_password_hash(user.password, password)
+        print(f"Password Check: {password_check}")
+
+        if not password_check:
+            flash('Incorrect password!', 'danger')
+            return redirect(request.url)
+
+        # Add this block
+        if password == '':
+            flash('Password is required!', 'danger')
+            return redirect(request.url)
+
+        login_user(user)
+        return redirect(url_for("account"))
 
     return render_template("login.html")
 
