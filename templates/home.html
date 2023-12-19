@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/static/logo.png">
+    <title>StickyLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+</head>
+<body>
+    <nav>
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
+        </a>
+        <a href="/">Home</a>
+        <a href="{{ url_for('products') }}">Products</a>
+        <a href="{{ url_for('shop') }}">Shop</a>
+        <a href="{{ url_for('contact') }}">Contact</a>
+        <a href="{{ url_for('login') }}">Login</a>
+    </nav>
+    {% if current_user.is_authenticated %}
+    <h1>You are logged in</h1>
+    <a href="/logout">Logout</a>
+    {% else %}
+    <h1>You are not logged in</h1>
+    {% endif %}
+</body>
+</html>
