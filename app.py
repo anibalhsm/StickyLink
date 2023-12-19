@@ -48,12 +48,12 @@ def products():
 def shop():
     return render_template('shop.html')
 
-# Configure Flask-Mail
+#Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  # replace with your email
-app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'  # replace with your password
+app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
+app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
 
 mail = Mail(app)
 
@@ -66,11 +66,11 @@ def contact():
 
         msg = Message('New contact form submission',
                       sender='your-email@example.com',
-                      recipients=['200170770@aston.ac.uk'])  # replace with the new recipient's email
+                      recipients=['200170770@aston.ac.uk'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
         mail.send(msg)
 
-        return redirect(url_for('contact'))  # Redirect to the same page to clear the form
+        return redirect(url_for('contact')) 
     else:
         return render_template('contact.html')
 
