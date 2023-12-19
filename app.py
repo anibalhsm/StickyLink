@@ -116,14 +116,14 @@ def contact():
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
+        subject = request.form['subject']
         message = request.form['message']
 
-        msg = Message('New contact form submission',
-                      sender='your-email@example.com',
-                      recipients=['200170770@aston.ac.uk'])
+        msg = Message(subject=subject,  # use the variable subject
+                      sender=email,  # use the variable email
+                      recipients=['StickyLink@outlook.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
         mail.send(msg)
-
         return redirect(url_for('contact')) 
     else:
         return render_template('contact.html')
