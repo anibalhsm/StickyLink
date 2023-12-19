@@ -15,7 +15,10 @@ nav img {
     max-height: 50px; /* Adjust the height as needed */
     margin-right: 10px;
 }
-
+.topnav .login-container {
+    float: right;
+  }
+  
 nav a {
     margin: 0 10px;
     text-decoration: none;
