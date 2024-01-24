@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 </head>
-<body>
+<html>
     <nav>
         <a href="/">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
@@ -43,36 +43,4 @@
     <div id="userList"></div>
     <script src="userManagement.js"></script>
 </body>
-<script>
-    document.getElementById('userForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    var username = document.getElementById('username').value;
-    var role = document.getElementById('role').value;
-
-    // Create a new XMLHttpRequest object
-    var xhr = new XMLHttpRequest();
-
-    // Configure the request
-    xhr.open('POST', '/change_role', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    // Set up what happens when the request is sent
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            var userList = document.getElementById('userList');
-            var userItem = document.createElement('div');
-            userItem.textContent = 'Username: ' + username + ', Role: ' + role;
-            userList.appendChild(userItem);
-        } else {
-            console.error('Request failed. Returned status of ' + xhr.status);
-        }
-    };
-
-    // Send the request
-    xhr.send('username=' + encodeURIComponent(username) + '&role=' + encodeURIComponent(role));
-});
-
-</script>
-
 </html>
