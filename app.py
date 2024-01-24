@@ -79,16 +79,13 @@ def get_users():
 
 @app.route('/delete_product/<product_id>', methods=['DELETE'])
 def delete_product(product_id):
-    # Fetch the product from your database
     product = Product.query.get(product_id)
 
     if product is not None:
-        # If the product exists, delete it from the database
         db.session.delete(product)
         db.session.commit()
         return "Product deleted successfully", 200
     else:
-        # If the product doesn't exist, return an error message
         return "Product not found", 404
 
 @app.route('/admin/users')
