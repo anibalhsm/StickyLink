@@ -26,7 +26,6 @@ class Users(UserMixin, db.Model):
         return {
             'username': self.username,
             'role': self.role
-            # Add other fields as needed
         }
 
 class Product(db.Model):
