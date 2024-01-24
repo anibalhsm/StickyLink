@@ -77,17 +77,19 @@ def get_users():
     # Convert the list of dictionaries to a JSON string and return it
     return jsonify(users_dict)
 
-@app.route('/delete_product/<int:id>', methods=['POST'])
-#@login_required  
-def delete_product(id):
-    if current_user.role != 'admin': 
-        return "Only admins can delete products!"
+@app.route('/delete_product/<product_id>', methods=['DELETE'])
+def delete_product(product_id):
+    # Fetch the product from your database
+    product = Product.query.get(product_id)
 
-    product_to_delete = Product.query.get(id)
-    db.session.delete(product_to_delete)
-    db.session.commit()
-
-    return redirect(url_for('products'))
+    if product is not None:
+        # If the product exists, delete it from the database
+        db.session.delete(product)
+        db.session.commit()
+        return "Product deleted successfully", 200
+    else:
+        # If the product doesn't exist, return an error message
+        return "Product not found", 404
 
 @app.route('/admin/users')
 #@login_required
@@ -154,7 +156,6 @@ def login():
             flash('Incorrect password!', 'danger')
             return redirect(request.url)
 
-        # Add this block
         if password == '':
             flash('Password is required!', 'danger')
             return redirect(request.url)

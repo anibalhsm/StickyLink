@@ -6,7 +6,6 @@
     <link rel="icon" type="image/x-icon" href="/static/logo.png">
     <title>StickyLink</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-
 </head>
 <body>
     <nav>
@@ -61,6 +60,9 @@
                 Price: ${{ product.price }}<br>
                 <img src="{{ product.image_url }}" alt="{{ product.name }}" width="100"><br>
                 <button onclick="addToCart('{{ product.name }}', '{{ product.price }}')">Add to Cart</button>
+                {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                <button onclick="deleteProduct('{{ product.id }}')">Delete</button>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>    
@@ -70,7 +72,7 @@
     <ul id="shoppingCart"></ul>
 
     <script>
-         function toggleForm() {
+        function toggleForm() {
             var form = document.getElementById("addProductForm");
             form.style.display = (form.style.display === "none") ? "block" : "none";
         }
@@ -91,6 +93,29 @@
     
             shoppingCart.appendChild(listItem);
         }
+        
+        function deleteProduct(productId) {
+    // Create a new XMLHttpRequest object
+    var xhr = new XMLHttpRequest();
+
+    // Configure the request
+    xhr.open('DELETE', '/delete_product/' + encodeURIComponent(productId), true);
+
+    // Set up what happens when the request is sent
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('Product deleted successfully');
+            // Refresh the page
+            location.reload();
+        } else {
+            console.error('Request failed. Returned status of ' + xhr.status);
+        }
+    };
+
+    // Send the request
+    xhr.send();
+}
+
     </script>
 </body>
 </html>
