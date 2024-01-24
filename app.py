@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -22,6 +22,12 @@ class Users(UserMixin, db.Model):
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
     role = db.Column(db.String(250), default ='user')
+    def to_dict(self):
+        return {
+            'username': self.username,
+            'role': self.role
+            # Add other fields as needed
+        }
 
 class Product(db.Model):
     __tablename__ = 'product'
@@ -60,6 +66,17 @@ def add_product():
 
     return redirect(url_for('products'))
 
+@app.route('/get_users', methods=['GET'])
+def get_users():
+    # Fetch the list of users from your database
+    users = Users.query.all()
+
+    # Convert the list of users to a list of dictionaries
+    users_dict = [user.to_dict() for user in users]
+
+    # Convert the list of dictionaries to a JSON string and return it
+    return jsonify(users_dict)
+
 @app.route('/delete_product/<int:id>', methods=['POST'])
 #@login_required  
 def delete_product(id):
@@ -81,7 +98,6 @@ def admin_users():
     users = Users.query.all()
     return render_template('admin_users.html', users=users)
 
-from flask import request
 
 @app.route('/change_role', methods=['POST'])
 def change_role():
@@ -96,6 +112,20 @@ def change_role():
     db.session.commit()
 
     return "Role changed successfully!"
+
+@app.route('/delete_user/<username>', methods=['DELETE'])
+def delete_user(username):
+    # Fetch the user from your database
+    user = Users.query.filter_by(username=username).first()
+
+    if user is not None:
+        # If the user exists, delete them from the database
+        db.session.delete(user)
+        db.session.commit()
+        return "User deleted successfully", 200
+    else:
+        # If the user doesn't exist, return an error message
+        return "User not found", 404
 
 @app.route('/')
 def home():
