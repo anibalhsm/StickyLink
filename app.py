@@ -6,33 +6,52 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
-# Tells flask-sqlalchemy what database to connect to
+#db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
-# Enter a secret key
 app.config["SECRET_KEY"] = "abc"
-# Initialize flask-sqlalchemy extension
 db = SQLAlchemy()
-# LoginManager is needed for our application 
-# to be able to log in and out users
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# Models
+#Db
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
- # Initialize app with extension
-db.init_app(app)
-# Create database within app context
- 
-with app.app_context():
-    db.create_all()
 
-# Creates a user loader callback that returns the user object given an id
+class Product(db.Model):
+    __tablename__ = 'product'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    description = db.Column(db.Text)
+    price = db.Column(db.Float)
+    image_url = db.Column(db.String(255))
+    
+db.init_app(app)
+
 @login_manager.user_loader
 def loader_user(user_id):
     return Users.query.get(user_id)
+
+
+@app.route('/products')
+def products():
+    products = Product.query.all()
+    return render_template('products.html', products=products)
+
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    name = request.form.get('name')
+    description = request.form.get('description')
+    price = float(request.form.get('price'))
+    image_url = request.form.get('image_url')
+
+    new_product = Product(name=name, description=description, price=price, image_url=image_url)
+    db.session.add(new_product)
+    db.session.commit()
+
+    return redirect(url_for('products'))
 
 @app.route('/')
 def home():
@@ -94,10 +113,6 @@ def logout():
     logout_user()
     return redirect(url_for("account"))
 
-@app.route('/Products')
-def products():
-    return render_template('products.html')
-
 @app.route('/Shop')
 def shop():
     return render_template('shop.html')
@@ -119,8 +134,8 @@ def contact():
         subject = request.form['subject']
         message = request.form['message']
 
-        msg = Message(subject=subject,  # use the variable subject
-                      sender=email,  # use the variable email
+        msg = Message(subject=subject, 
+                      sender=email,
                       recipients=['StickyLink@outlook.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
         mail.send(msg)
@@ -129,4 +144,6 @@ def contact():
         return render_template('contact.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
