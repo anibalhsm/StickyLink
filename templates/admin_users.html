@@ -28,19 +28,20 @@
         {% endif %}
     </nav>
 
-<body>
-    <h1>User Management</h1>
-    <form id="userForm">
-        <label for="username">Username:</label><br>
-        <input type="text" id="username" name="username"><br>
-        <label for="role">Role:</label><br>
-        <select id="role" name="role">
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-        </select><br>
-        <input type="submit" value="Add User">
-    </form>
-    <div id="userList"></div>
-    <script src="{{ url_for('static', filename='js/userManagement.js') }}" 
-        ></script>
+    <body>
+        <h1>User Management</h1>
+        <form id="userForm">
+            <label for="username">Username:</label><br>
+            <input type="text" id="username" name="username"><br>
+            <label for="role">Role:</label><br>
+            <select id="role" name="role">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select><br>
+            <input type="submit" value="Change Role">
+            <input type="button" value="Reset Password" onclick="resetPassword()">
+            <input type="button" value="Delete User" onclick="deleteUser()">
+        </form>
+        <div id="userList"></div>
+        <script src="{{ url_for('static', filename='js/userManagement.js') }}"></script>
 </body>

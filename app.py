@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -59,7 +59,7 @@ def products():
     return render_template('products.html', products=products)
 
 @app.route('/add_product', methods=['POST'])
-#@login_required
+@login_required
 def add_product():
     if current_user.role != 'admin':
          return "Only admins can delete products!"
@@ -97,7 +97,7 @@ def delete_product(product_id):
         return "Product not found", 404
 
 @app.route('/admin/users')
-#@login_required
+@login_required
 def admin_users():
     if current_user.role != 'admin':
         return "Only admins can view this page!"
@@ -122,17 +122,42 @@ def change_role():
 
 @app.route('/delete_user/<username>', methods=['DELETE'])
 def delete_user(username):
-    # Fetch the user from your database
     user = Users.query.filter_by(username=username).first()
-
     if user is not None:
-        # If the user exists, delete them from the database
         db.session.delete(user)
         db.session.commit()
         return "User deleted successfully", 200
     else:
         # If the user doesn't exist, return an error message
         return "User not found", 404
+
+@app.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    old_password = request.form.get('old_password')
+    new_password = request.form.get('new_password')
+
+    if not check_password_hash(current_user.password, old_password):
+        flash('Your old password is incorrect.')
+        return redirect(url_for('account'))
+
+    current_user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    flash('Your password has been updated.')
+    return redirect(url_for('account'))
+
+@app.route('/reset_password/<username>', methods=['GET'])
+@login_required
+def reset_password(username):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        user.password = generate_password_hash('StickyLink')
+        db.session.commit()
+        flash('Password has been reset.')
+    else:
+        flash('User not found.')
+    return redirect(url_for('admin_users'))
 
 @app.route('/')
 def home():
