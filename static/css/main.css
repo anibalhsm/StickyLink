@@ -11,11 +11,28 @@ nav {
     align-items: center;
 }
 
+
+topnav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.leftnav {
+    display: flex;
+}
+
+#still has to be fixed
+
+.rightnav {
+    display: flex;
+}
+
 nav img {
     max-height: 50px; /* Adjust the height as needed */
     margin-right: 10px;
 }
-
+  
 nav a {
     margin: 0 10px;
     text-decoration: none;
@@ -38,9 +55,15 @@ form input[type="text"], form input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 5px;
 }
-
+form input[type="email"], form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
 form input[type="submit"] {
-    background-color: #4CAF50;
+    background-color: #4c66af;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -49,7 +72,8 @@ form input[type="submit"] {
 }
 
 form input[type="submit"]:hover {
-    background-color: #45a049;
+    background-color: #4546a0;
+}
 }
 
 #addProductForm {
