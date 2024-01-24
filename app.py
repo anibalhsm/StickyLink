@@ -22,7 +22,7 @@ class Users(UserMixin, db.Model):
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
     role = db.Column(db.String(250), default ='user')
-        
+
 class Product(db.Model):
     __tablename__ = 'product'
     __table_args__ = {'extend_existing': True}
@@ -81,6 +81,21 @@ def admin_users():
     users = Users.query.all()
     return render_template('admin_users.html', users=users)
 
+from flask import request
+
+@app.route('/change_role', methods=['POST'])
+def change_role():
+    username = request.form.get('username')
+    role = request.form.get('role')
+
+    user = Users.query.filter_by(username=username).first()
+    if user is None:
+        return "User not found!", 404
+
+    user.role = role
+    db.session.commit()
+
+    return "Role changed successfully!"
 
 @app.route('/')
 def home():

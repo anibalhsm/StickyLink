@@ -28,19 +28,24 @@
 {% endwith %}
 <body>
     <nav>
-        <a href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
-        </a>
-        <a href="/">Home</a>
-        <a href="{{ url_for('products') }}">Products</a>
-        <a href="{{ url_for('shop') }}">Shop</a>
-        <a href="{{ url_for('contact') }}">Contact</a>
-        {% if current_user.is_authenticated %}
-        <a href="{{ url_for('account') }}">Account</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-    {% endif %}
+        <nav>
+            <a href="/">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
+            </a>
+            <a href="/">Home</a>
+            <a href="{{ url_for('products') }}">Products</a>
+            <a href="{{ url_for('shop') }}">Shop</a>
+            <a href="{{ url_for('contact') }}">Contact</a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('account') }}">Account</a>
+            {% if current_user.role == 'admin' %}
+            <a href="{{ url_for('admin_users') }}">Users</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+        </nav>
     </nav>
     <div>
         <div id="login-form">
