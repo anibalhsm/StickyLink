@@ -1,15 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mail import Mail, Message
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
+
 #db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "abc"
 db = SQLAlchemy()
+migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -18,6 +21,7 @@ class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    role = db.Column(db.String(250))
 
 class Product(db.Model):
     __tablename__ = 'product'
@@ -41,7 +45,10 @@ def products():
     return render_template('products.html', products=products)
 
 @app.route('/add_product', methods=['POST'])
+#@login_required
 def add_product():
+    if current_user.role != 'admin':
+         return "Only admins can delete products!"
     name = request.form.get('name')
     description = request.form.get('description')
     price = float(request.form.get('price'))
@@ -52,6 +59,28 @@ def add_product():
     db.session.commit()
 
     return redirect(url_for('products'))
+
+@app.route('/delete_product/<int:id>', methods=['POST'])
+#@login_required  
+def delete_product(id):
+    if current_user.role != 'admin': 
+        return "Only admins can delete products!"
+
+    product_to_delete = Product.query.get(id)
+    db.session.delete(product_to_delete)
+    db.session.commit()
+
+    return redirect(url_for('products'))
+
+@app.route('/admin/users')
+#@login_required
+def admin_users():
+    if current_user.role != 'admin':
+        return "Only admins can view this page!"
+
+    users = Users.query.all()
+    return render_template('admin_users.html', users=users)
+
 
 @app.route('/')
 def home():
