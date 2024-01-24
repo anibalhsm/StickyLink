@@ -1,8 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>User Management</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/static/logo.png">
+    <title>StickyLink</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
 </head>
+<body>
+    <nav>
+        <a href="/">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
+        </a>
+        <a href="/">Home</a>
+        <a href="{{ url_for('products') }}">Products</a>
+        <a href="{{ url_for('shop') }}">Shop</a>
+        <a href="{{ url_for('contact') }}">Contact</a>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('account') }}">Account</a>
+        {% if current_user.role == 'admin' %}
+        <a href="{{ url_for('admin_users') }}">Users</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+    </nav>
+
 <body>
     <h1>User Management</h1>
     <form id="userForm">

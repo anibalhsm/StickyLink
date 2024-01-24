@@ -27,14 +27,14 @@
         <a href="{{ url_for('login') }}">Login</a>
         {% endif %}
     </nav>
-    <h1>Product Management</h1>
 
+    {% if current_user.is_authenticated and current_user.role == 'admin' %}
     <!-- Button to toggle the form visibility -->
-    <button onclick="toggleForm()">Toggle Form</button>
-
+    <button onclick="toggleForm()">Add a Product</button>
     <!-- Form to add a new product -->
-    <h2>Add a New Product</h2>
-    <form id="addProductForm" action="/add_product" method="post">
+    <div id="addProductForm" style="display: none;">
+        <h2>Add a New Product</h2>
+        <form action="/add_product" method="post">
         <label for="name">Name:</label>
         <input type="text" name="name" required><br>
 
@@ -49,7 +49,8 @@
 
         <button type="submit">Add Product</button>
     </form>
-
+    </div>
+    {% endif %}
     <!-- Display existing products -->
     <h2>Existing Products</h2>
     <ul>
@@ -69,7 +70,7 @@
     <ul id="shoppingCart"></ul>
 
     <script>
-        function toggleForm() {
+         function toggleForm() {
             var form = document.getElementById("addProductForm");
             form.style.display = (form.style.display === "none") ? "block" : "none";
         }
