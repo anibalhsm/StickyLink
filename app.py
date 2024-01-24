@@ -7,6 +7,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
+#Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
+app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
+
+mail = Mail(app)
 
 #db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
@@ -39,6 +47,7 @@ class Product(db.Model):
     
 db.init_app(app)
 
+#Routes
 @login_manager.user_loader
 def loader_user(user_id):
     return Users.query.get(user_id)
@@ -187,15 +196,6 @@ def logout():
 @app.route('/Shop')
 def shop():
     return render_template('shop.html')
-
-#Flask-Mail
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
-app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
-
-mail = Mail(app)
 
 @app.route('/Contact', methods=['GET', 'POST'])
 def contact():
