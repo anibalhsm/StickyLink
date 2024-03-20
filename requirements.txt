@@ -4,5 +4,5 @@ Werkzeug==2.0.1
 flask_migrate==3.0.0
 flask_mail==0.9.1
 flask_login==0.6.3
-gunicorn==24.0
+gunicorn==21.0.0
 
