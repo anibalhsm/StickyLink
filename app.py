@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required, user_accessed
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -150,7 +150,7 @@ def change_password():
 @app.route('/reset_password/<username>', methods=['GET'])
 @login_required
 def reset_password(username):
-    user = User.query.filter_by(username=username).first()
+    user = user_accessed.query.filter_by(username=username).first()
     if user:
         user.password = generate_password_hash('StickyLink')
         db.session.commit()
