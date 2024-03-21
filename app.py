@@ -77,13 +77,8 @@ def add_product():
 
 @app.route('/get_users', methods=['GET'])
 def get_users():
-    # Fetch the list of users from your database
     users = Users.query.all()
-
-    # Convert the list of users to a list of dictionaries
     users_dict = [user.to_dict() for user in users]
-
-    # Convert the list of dictionaries to a JSON string and return it
     return jsonify(users_dict)
 
 @app.route('/delete_product/<product_id>', methods=['DELETE'])
@@ -129,7 +124,6 @@ def delete_user(username):
         db.session.commit()
         return "User deleted successfully", 200
     else:
-        # If the user doesn't exist, return an error message
         return "User not found", 404
 
 @app.route('/change_password', methods=['POST'])
@@ -233,7 +227,7 @@ def contact():
 
         msg = Message(subject=subject, 
                       sender=email,
-                      recipients=['StickyLink@outlook.com'])
+                      recipients=['anibal.rodriguez@sticky-link.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
         mail.send(msg)
         return redirect(url_for('contact')) 

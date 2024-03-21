@@ -28,9 +28,7 @@
     </nav>
 
     {% if current_user.is_authenticated and current_user.role == 'admin' %}
-    <!-- Button to toggle the form visibility -->
     <button onclick="toggleForm()">Add a Product</button>
-    <!-- Form to add a new product -->
     <div id="addProductForm" style="display: none;">
         <h2>Add a New Product</h2>
         <form action="/add_product" method="post">
@@ -50,7 +48,6 @@
     </form>
     </div>
     {% endif %}
-    <!-- Display existing products -->
     <h2>Existing Products</h2>
     <ul>
         {% for product in products %}
@@ -67,7 +64,6 @@
         {% endfor %}
     </ul>    
 
-    <!-- Shopping Cart -->
     <h2>Shopping Cart</h2>
     <ul id="shoppingCart"></ul>
 
@@ -82,7 +78,6 @@
             var shoppingCart = document.getElementById("shoppingCart");
             var listItem = document.createElement("li");
     
-            // Create span elements for name and price separately
             var nameSpan = document.createElement("span");
             nameSpan.innerText = name;
             listItem.appendChild(nameSpan);
@@ -95,24 +90,19 @@
         }
         
         function deleteProduct(productId) {
-    // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
 
-    // Configure the request
     xhr.open('DELETE', '/delete_product/' + encodeURIComponent(productId), true);
 
-    // Set up what happens when the request is sent
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log('Product deleted successfully');
-            // Refresh the page
             location.reload();
         } else {
             console.error('Request failed. Returned status of ' + xhr.status);
         }
     };
 
-    // Send the request
     xhr.send();
 }
 
