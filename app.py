@@ -19,6 +19,7 @@ mail = Mail(app)
 #db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "abc"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy()
 migrate = Migrate(app, db)
 login_manager = LoginManager()
