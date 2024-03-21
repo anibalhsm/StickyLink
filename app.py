@@ -7,6 +7,25 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
+import click
+from flask.cli import with_appcontext
+from your_app import db  # Import your Flask app's database context
+from your_app.models import Users  # Import your Users model
+
+@click.command('promote-to-admin')
+@click.argument('username')
+@with_appcontext
+def promote_to_admin(username):
+    """Promote a user to an admin role."""
+    user = Users.query.filter_by(username=username).first()
+    if not user:
+        click.echo(f"User {username} not found.")
+        return
+    user.role = 'admin'
+    db.session.commit()
+    click.echo(f"User {username} has been promoted to admin.")
+
+
 #Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
@@ -237,4 +256,5 @@ def contact():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+        app.cli.add_command(promote_to_admin)
     app.run(debug=False)
