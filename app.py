@@ -2,54 +2,40 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required, user_accessed
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
+import click
+from flask.cli import with_appcontext
 
 app = Flask(__name__)
 
-import click
-from flask.cli import with_appcontext
-from your_app import db  # Import your Flask app's database context
-from your_app.models import Users  # Import your Users model
-
-@click.command('promote-to-admin')
-@click.argument('username')
-@with_appcontext
-def promote_to_admin(username):
-    """Promote a user to an admin role."""
-    user = Users.query.filter_by(username=username).first()
-    if not user:
-        click.echo(f"User {username} not found.")
-        return
-    user.role = 'admin'
-    db.session.commit()
-    click.echo(f"User {username} has been promoted to admin.")
-
-
-#Flask-Mail
+# Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
+app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'
 app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
 
 mail = Mail(app)
 
-#db connection
+# Database configuration
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "abc"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy()
+db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Login manager setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-#Db
+# Database models
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
-    role = db.Column(db.String(250), default ='user')
+    role = db.Column(db.String(250), default='user')
+    
     def to_dict(self):
         return {
             'username': self.username,
@@ -64,7 +50,21 @@ class Product(db.Model):
     description = db.Column(db.Text)
     price = db.Column(db.Float)
     image_url = db.Column(db.String(255))
-    
+
+# Command for promoting users to admin
+@click.command('promote-to-admin')
+@click.argument('username')
+@with_appcontext
+def promote_to_admin(username):
+    """Promote a user to an admin role."""
+    user = Users.query.filter_by(username=username).first()
+    if not user:
+        click.echo(f"User {username} not found.")
+        return
+    user.role = 'admin'
+    db.session.commit()
+    click.echo(f"User {username} has been promoted to admin.")
+
 db.init_app(app)
 
 #Routes
@@ -164,7 +164,7 @@ def change_password():
 @app.route('/reset_password/<username>', methods=['GET'])
 @login_required
 def reset_password(username):
-    user = user_accessed.query.filter_by(username=username).first()
+    user = Users.query.filter_by(username=username).first()
     if user:
         user.password = generate_password_hash('StickyLink')
         db.session.commit()
