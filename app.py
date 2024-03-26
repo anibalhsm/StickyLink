@@ -1,5 +1,5 @@
 import mailbox
-from app import db
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -7,20 +7,19 @@ import click
 from flask.cli import with_appcontext
 from werkzeug.utils import secure_filename
 import os
-from flask import Flask, app, render_template, request, redirect, url_for, flash, jsonify
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 
-
-# Rest of the code...
+app = Flask(__name__)
 app.config["SECRET_KEY"] = "abc"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-app.config['UPLOAD_FOLDER'] = 'static/uploads'  
 login_manager = LoginManager()
 login_manager.init_app(app)
+mailbox = Mail(app)
 
 # Database models
 class Users(UserMixin, db.Model):
