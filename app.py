@@ -1,4 +1,5 @@
-
+import mailbox
+from app import db
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -6,23 +7,12 @@ import click
 from flask.cli import with_appcontext
 from werkzeug.utils import secure_filename
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, app, render_template, request, redirect, url_for, flash, jsonify
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
 
-app = Flask(__name__)
 
-# Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'
-app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
-
-mail = Mail(app)
-
-# Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+# Rest of the code...
 app.config["SECRET_KEY"] = "abc"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -71,7 +61,7 @@ def promote_to_admin(username):
 #Routes
 @login_manager.user_loader
 def loader_user(user_id):
-    return db.session.get(Users, int(user_id))
+    return db.session.query(Users).get(int(user_id))
 
 @app.route('/products')
 def products():
@@ -274,7 +264,7 @@ def contact():
                       sender=email,
                       recipients=['anibal.rodriguez@sticky-link.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
-        mail.send(msg)
+        mailbox.send(msg)
         return redirect(url_for('contact')) 
     else:
         return render_template('contact.html')
