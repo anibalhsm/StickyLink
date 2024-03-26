@@ -1,25 +1,35 @@
-import mailbox
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from werkzeug.security import check_password_hash, generate_password_hash
-import click
-from flask.cli import with_appcontext
-from werkzeug.utils import secure_filename
-import os
 from flask_mail import Mail, Message
 from flask_migrate import Migrate
+import click
+from flask.cli import with_appcontext
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "abc"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
 
+# Configuration for Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
+app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
+
+# Configuration for SQLAlchemy
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+app.config["SECRET_KEY"] = "abc"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
+
+# Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-login_manager = LoginManager()
-login_manager.init_app(app)
-mailbox = Mail(app)
+login_manager = LoginManager(app)
+mail = Mail(app)
 
 # Database models
 class Users(UserMixin, db.Model):
@@ -263,7 +273,7 @@ def contact():
                       sender=email,
                       recipients=['anibal.rodriguez@sticky-link.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
-        mailbox.send(msg)
+        mail.send(msg)
         return redirect(url_for('contact')) 
     else:
         return render_template('contact.html')
