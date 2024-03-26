@@ -1,69 +1,176 @@
+/* Define CSS variables for colors, spacings, and common values for easy maintenance and consistency */
+:root {
+    --primary-color: #333;
+    --link-color: white;
+    --link-hover-color: #4c66af;
+    --button-bg-color: #add8e6;
+    --button-hover-bg-color: #87ceeb;
+    --form-bg-color: white;
+    --input-border-color: #ddd;
+    --drop-area-bg-color: #f3f3f3;
+    --drop-area-hover-border-color: #999;
+    --product-card-bg-color: #fff;
+    --cart-section-bg-color: white;
+    --button-delete-bg-color: #add8e6;
+    --add-product-btn-bg-color: #5cb85c;
+    --add-product-btn-hover-bg-color: #4cae4c;
+    --image-max-width: 100px; /* Maximum width for images */
+    --image-max-height: 100px; /* Maximum height for images */
+}
+
+/* General body styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Arial", sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
 }
 
+main {
+    padding-top: 70px; /* Adjust as needed to account for the height of the header */
+}
+ 
+header {
+    position: relative; /* This will be the anchor for the absolute positioning */
+    background-color: var(--primary-color);
+    padding: 10px 0;
+}
+  
+/* Navigation styles */
 nav {
-    background-color: #f2f2f2;
+    background-color: var(--primary-color);
     padding: 10px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+}
+  
+nav img {
+    max-height: 50px;
+    margin-right: 15px;
+}
+  
+nav a {
+    color: var(--link-color);
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+  
+nav a:hover, nav a:focus {
+    background-color: var(--link-hover-color);
+}
+  
+/* Main content and layout styles */
+main {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+  
+#productsSection {
+    flex: 1;
+    padding-right: 10px;
+}
+  
+#cartSection {
+    flex-basis: 300px;
+    margin-left: 10px;
+    display: flex; /* Will be toggled by JavaScript */
+    flex-direction: column;
+    padding: 20px;
+    background-color: var(--cart-section-bg-color);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+  
+h2 {
+    color: var(--primary-color);
+    text-align: center;
 }
 
-
-topnav{
+/* Product and cart list styling */
+ul.products, ul#shoppingCart {
+    list-style: none;
+    padding: 0;
+}
+  
+ul.products li {
+    background-color: var(--product-card-bg-color);
+    border: 1px solid var(--input-border-color);
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
-.leftnav {
-    display: flex;
-}
-
-#still has to be fixed
-
-.rightnav {
-    display: flex;
-}
-
-nav img {
-    max-height: 50px; 
-    margin-right: 10px;
+  
+ul#shoppingCart li {
+    padding: 5px 0;
+    border-bottom: 1px solid var(--input-border-color);
 }
   
-nav a {
-    margin: 0 10px;
-    text-decoration: none;
-    color: #333;
+ul.products li img,
+ul#shoppingCart li img {
+    max-width: var(--image-max-width);
+    max-height: var(--image-max-height);
+    width: auto; /* Maintain aspect ratio */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: contain; /* Ensure images fit nicely without being cropped or stretched */
 }
+
+/* Button styles */
+button,
+button.delete {
+    padding: 8px 15px;
+    background-color: var(--button-bg-color); /* Light blue color */
+    color: var(--primary-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover,
+button.delete:hover,
+button:focus,
+button.delete:focus {
+    background-color: var(--button-hover-bg-color); /* Slightly darker blue on hover */
+}
+
+#addProductBtn {
+    position: fixed; /* Position absolutely within the header */
+    top: 10px; /* Position just below the nav */
+    right: 10px; /* Keep to the right */
+    z-index: 10;/* Ensure it's above other content */
+    padding: 10px 20px;
+    background-color: var(--add-product-btn-bg-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#addProductBtn:hover {
+    background-color: var(--add-product-btn-hover-bg-color);
+}
+
+/* Form styles */
 form {
-    width: 300px;
-    margin: 0 auto;
+    background: var(--form-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: 0 auto; /* Center the form */
 }
 
-form label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-form input[type="text"], form input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-form input[type="email"], form input[type="email"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    
 form input[type="submit"] {
-    background-color: #4c66af;
+    width: 100%;
+    background-color: var(--button-bg-color); /* Light blue color */
     color: white;
     padding: 10px 20px;
     border: none;
@@ -71,9 +178,82 @@ form input[type="submit"] {
     cursor: pointer;
 }
 
+form.hidden {
+    display: none;
+}
+
 form input[type="submit"]:hover {
-    background-color: #4546a0;
-}
+    background-color: var(--button-hover-bg-color); /* Slightly darker blue on hover */
 }
 
+form input[type="text"],
+form input[type="number"],
+form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+}
 
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Styles for the image drop area */
+.drop-area {
+    background: var(--drop-area-bg-color);
+    border: 2px dashed var(--input-border-color);
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.drop-area:hover {
+    border-color: var(--drop-area-hover-border-color);
+}
+
+.drop-message {
+    margin-bottom: 10px;
+    color: #666;
+}
+
+/* Shopping Cart Total */
+#shoppingCartTotal {
+    padding-top: 10px;
+    border-top: 1px solid var(--input-border-color);
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+
+    #productsSection,
+    #cartSection {
+        width: auto;
+        padding: 0;
+    }
+
+    #addProductBtn {
+        position: static;
+        display: block; /* Center the button when in mobile view */
+        margin: 10px auto;
+    }
+}#uploadedImage {
+    display: block; /* Override the display:none; when an image is loaded */
+    margin-top: 10px; /* Add some space above the image */
+    border: 1px solid var(--input-border-color); /* A subtle border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* A soft shadow for depth */
+    border-radius: 4px; /* Match other inputs */
+}
+.drop-area.dragging {
+    background-color: var(--button-hover-bg-color); /* Change background to indicate active dragging */
+    border-color: var(--link-hover-color); /* More noticeable border color */
+}

@@ -10,9 +10,7 @@
 </head>
 <body>
     <nav>
-        <a href="/">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
-        </a>
+        <a href="/"> <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> </a>
         <a href="/">Home</a>
         <a href="{{ url_for('products') }}">Products</a>
         <a href="{{ url_for('shop') }}">Shop</a>

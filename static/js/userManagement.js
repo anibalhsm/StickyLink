@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 window.onload = function() {
     // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
@@ -37,6 +29,47 @@ window.onload = function() {
     xhr.send();
 };
 
+function updateUserRole() {
+    var form = document.getElementById('userForm');
+    var username = form.elements['username'].value;
+    var role = form.elements['role'].value;
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/change_role', true); // Change PUT to POST
+
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('User role updated successfully');
+            location.reload();
+        } else {
+            console.error('Request failed. Returned status of ' + xhr.status);
+        }
+    };
+
+    xhr.send('username=' + encodeURIComponent(username) + '&role=' + encodeURIComponent(role));
+}
+
+function resetPassword(username) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/reset_password/' + encodeURIComponent(username), true);
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('Password reset successfully');
+            // Optionally, display a message to the user indicating success
+        } else {
+            console.error('Password reset failed. Returned status of ' + xhr.status);
+            // Optionally, display an error message to the user
+        }
+    };
+
+    xhr.send();
+}
+
+
+
 function deleteUser(username) {
     var xhr = new XMLHttpRequest();
 
@@ -53,3 +86,9 @@ function deleteUser(username) {
 
     xhr.send();
 }
+
+
+document.getElementById('userForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+    updateUserRole(); // Call function to update user role
+});

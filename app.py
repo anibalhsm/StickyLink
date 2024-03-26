@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_mail import Mail, Message
-from flask_migrate import Migrate
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 import click
 from flask.cli import with_appcontext
+from werkzeug.utils import secure_filename
+import os
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask_mail import Mail, Message
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -25,7 +28,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Login manager setup
+app.config['UPLOAD_FOLDER'] = 'static/uploads'  
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -65,13 +68,10 @@ def promote_to_admin(username):
     db.session.commit()
     click.echo(f"User {username} has been promoted to admin.")
 
-db.init_app(app)
-
 #Routes
 @login_manager.user_loader
 def loader_user(user_id):
-    return Users.query.get(user_id)
-
+    return db.session.get(Users, int(user_id))
 
 @app.route('/products')
 def products():
@@ -82,16 +82,31 @@ def products():
 @login_required
 def add_product():
     if current_user.role != 'admin':
-         return "Only admins can delete products!"
+        return "Only admins can add products!"
+    
     name = request.form.get('name')
     description = request.form.get('description')
-    price = float(request.form.get('price'))
-    image_url = request.form.get('image_url')
+    price = request.form.get('price')
+    
+    # Default image URL
+    default_image_url = url_for('static', filename='logo.png')
+    image_url = default_image_url
+
+    if 'image' in request.files:
+        image_file = request.files['image']
+        if image_file.filename == '':
+            flash('No selected file')
+            return redirect(url_for('products'))
+        else:
+            filename = secure_filename(image_file.filename)
+            image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image_url = url_for('static', filename='uploads/' + filename)
 
     new_product = Product(name=name, description=description, price=price, image_url=image_url)
     db.session.add(new_product)
     db.session.commit()
-
+    
+    flash('Product added successfully!')
     return redirect(url_for('products'))
 
 @app.route('/get_users', methods=['GET'])
@@ -102,24 +117,29 @@ def get_users():
 
 @app.route('/delete_product/<product_id>', methods=['DELETE'])
 def delete_product(product_id):
-    product = Product.query.get(product_id)
+    try:
+        product = Product.query.get(product_id)
 
-    if product is not None:
-        db.session.delete(product)
-        db.session.commit()
-        return "Product deleted successfully", 200
-    else:
-        return "Product not found", 404
+        if product is not None:
+            db.session.delete(product)
+            db.session.commit()
+            return "Product deleted successfully", 200
+        else:
+            return "Product not found", 404
+    except Exception as e:
+        return f"An error occurred while deleting the product: {str(e)}", 500
 
 @app.route('/admin/users')
 @login_required
 def admin_users():
-    if current_user.role != 'admin':
-        return "Only admins can view this page!"
+    try:
+        if current_user.role != 'admin':
+            return "Only admins can view this page!", 403
 
-    users = Users.query.all()
-    return render_template('admin_users.html', users=users)
-
+        users = Users.query.all()
+        return render_template('admin_users.html', users=users)
+    except Exception as e:
+        return f"An error occurred while retrieving users: {str(e)}", 500
 
 @app.route('/change_role', methods=['POST'])
 def change_role():
@@ -137,13 +157,17 @@ def change_role():
 
 @app.route('/delete_user/<username>', methods=['DELETE'])
 def delete_user(username):
-    user = Users.query.filter_by(username=username).first()
-    if user is not None:
-        db.session.delete(user)
-        db.session.commit()
-        return "User deleted successfully", 200
-    else:
-        return "User not found", 404
+    try:
+        user = Users.query.filter_by(username=username).first()
+        if user is not None:
+            db.session.delete(user)
+            db.session.commit()
+            return "User deleted successfully", 200
+        else:
+            return "User not found", 404
+    except Exception as e:
+        return f"An error occurred while deleting the user: {str(e)}", 500
+
 
 @app.route('/change_password', methods=['POST'])
 @login_required
@@ -161,11 +185,12 @@ def change_password():
     flash('Your password has been updated.')
     return redirect(url_for('account'))
 
-@app.route('/reset_password/<username>', methods=['GET'])
+@app.route('/reset_password/<username>', methods=['GET', 'POST'])
 @login_required
 def reset_password(username):
     user = Users.query.filter_by(username=username).first()
     if user:
+        # Reset the password to a default value (you can change this as needed)
         user.password = generate_password_hash('StickyLink')
         db.session.commit()
         flash('Password has been reset.')
@@ -224,13 +249,14 @@ def register():
         return render_template("sign_up.html")
 
 @app.route('/Account')
+@login_required
 def account():
     return render_template('home.html')
 
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for("account"))
+    return redirect(url_for("home"))
 
 @app.route('/Shop')
 def shop():
@@ -253,9 +279,7 @@ def contact():
     else:
         return render_template('contact.html')
     
-app.cli.add_command(promote_to_admin)
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        app.cli.add_command(promote_to_admin)
     app.run(debug=False)
