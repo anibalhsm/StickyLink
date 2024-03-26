@@ -23,6 +23,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "abc"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+UPLOAD_FOLDER = 'static/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Initialize extensions
