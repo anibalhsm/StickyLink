@@ -11,14 +11,11 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# Configuration for Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'anibaltafira17@gmail.com'  
 app.config['MAIL_PASSWORD'] = 'pztyagghjaskpshd'
-
-# Configuration for SQLAlchemy
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 app.config["SECRET_KEY"] = "abc"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -28,13 +25,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-# Initialize extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 mail = Mail(app)
 
-# Database models
 class Users(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
@@ -56,7 +51,6 @@ class Product(db.Model):
     price = db.Column(db.Float)
     image_url = db.Column(db.String(255))
 
-# Command for promoting users to admin
 @click.command('promote-to-admin')
 @click.argument('username')
 @with_appcontext
@@ -70,7 +64,6 @@ def promote_to_admin(username):
     db.session.commit()
     click.echo(f"User {username} has been promoted to admin.")
 
-#Routes
 @login_manager.user_loader
 def loader_user(user_id):
     return db.session.query(Users).get(int(user_id))
@@ -90,7 +83,6 @@ def add_product():
     description = request.form.get('description')
     price = request.form.get('price')
     
-    # Default image URL
     default_image_url = url_for('static', filename='logo.png')
     image_url = default_image_url
 
@@ -192,7 +184,6 @@ def change_password():
 def reset_password(username):
     user = Users.query.filter_by(username=username).first()
     if user:
-        # Reset the password to a default value (you can change this as needed)
         user.password = generate_password_hash('StickyLink')
         db.session.commit()
         flash('Password has been reset.')
