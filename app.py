@@ -8,6 +8,8 @@ import click
 from flask.cli import with_appcontext
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+from flask_login import current_user
+
 
 app = Flask(__name__)
 
@@ -65,7 +67,7 @@ def promote_to_admin(username):
 
 @login_manager.user_loader
 def loader_user(user_id):
-    return db.session.query(Users).get(int(user_id))
+    return Users.query.get(int(user_id))
 
 @app.route('/products')
 def products():
@@ -133,6 +135,21 @@ def admin_users():
         return render_template('admin_users.html', users=users)
     except Exception as e:
         return f"An error occurred while retrieving users: {str(e)}", 500
+    
+@app.route('/update_user_info', methods=['POST'])
+@login_required
+def update_user_info():
+    try:
+        user_id = current_user.id
+        user = Users.query.get(user_id)
+
+        if 'email' in request.form:
+            user.email = request.form['email']
+        db.session.commit()
+        flash('User information updated successfully.')
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 @app.route('/change_role', methods=['POST'])
 def change_role():
@@ -271,6 +288,7 @@ def contact():
     else:
         return render_template('contact.html')
     
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

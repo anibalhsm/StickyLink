@@ -33,15 +33,15 @@
     <button id="addProductBtn" onclick="toggleForm()">Add a Product</button>
     {% endif %}
     {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-      <div class="flash-message">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 </header>
 <main>
+    <button onclick="toggleCartVisibility()" id="toggleCartButton">Toggle Cart</button>
     <div id="content">
         <div id="productsSection">
             {% if current_user.is_authenticated and current_user.role == 'admin' %}
@@ -89,9 +89,8 @@
                 {% endfor %}
             </ul>
         </div>
-    
+                    
         <div id="cartSection">
-            <button onclick="toggleCartVisibility()">Toggle Cart</button>
             <h2>Shopping Cart</h2>
             <ul id="shoppingCart"></ul>
             <div id="shoppingCartTotal">Total: £0.00</div>

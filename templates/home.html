@@ -26,15 +26,17 @@
         {% endif %}
     </nav>
     {% if current_user.is_authenticated %}
-    <<div class="user-info">
+    <div class="user-info">
         <h2>User Information</h2>
-        <table>
-            <tr>
-                <th>Email:</th>
-                <td>{{ current_user.username }}</td> 
-            </tr>
-            <!-- You can add more rows for additional user info here -->
-        </table>
+        <form id="editUserInfoForm" action="{{ url_for('update_user_info') }}" method="post">
+            <table>
+                <tr>
+                    <th>Email:</th>
+                    <td><input type="email" id="email" name="email" value="{{ current_user.email }}"></td> 
+                </tr>
+            </table>
+            <input type="submit" value="Save Changes" class="submit-btn">
+        </form>
     </div>
     <div class="form-container">
         <h2>Change Password</h2>

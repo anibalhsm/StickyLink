@@ -87,3 +87,35 @@ document.getElementById('userForm').addEventListener('submit', function(event) {
     event.preventDefault();
     updateUserRole(); 
 });
+
+function updateUserInfo() {
+    var xhr = new XMLHttpRequest();
+    var form = document.getElementById('userInfoForm');
+    var formData = new FormData(form);
+
+    xhr.open('POST', '/update_user_info', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('User information updated successfully');
+            location.reload(); // Reload the page to reflect changes
+        } else {
+            console.error('Request failed. Returned status of ' + xhr.status);
+        }
+    };
+
+    var object = {};
+    formData.forEach(function(value, key) {
+        object[key] = value;
+    });
+    var json = JSON.stringify(object);
+
+    xhr.send(json);
+}
+
+// Add event listener for the user info form submission
+document.getElementById('userInfoForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    updateUserInfo();
+});

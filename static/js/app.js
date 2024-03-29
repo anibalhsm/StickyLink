@@ -37,7 +37,7 @@ $(document).ready(function() {
     $('.product-actions button[aria-label="Add to cart"]').click(function() {
         var productCard = $(this).closest('.product-card');
         var name = productCard.find('.product-info strong').text();
-        var price = parseFloat(productCard.find('.product-info').text().match(/Price: \$([\d.]+)/)[1]);
+        var price = parseFloat(productCard.find('.product-info').text().match(/Price: \£([\d.]+)/)[1]);
         var productId = productCard.attr('data-product-id');
         var quantity = parseInt(productCard.find('.quantity-input').val());
         addToCart(name, price, productId, quantity);
@@ -66,7 +66,7 @@ function addToCart(name, price, productId, quantity) {
         var currentQuantity = parseInt(listItem.attr('data-quantity'));
         listItem.attr('data-quantity', currentQuantity + quantity);
         listItem.find('.item-quantity').text('x ' + (currentQuantity + quantity));
-        listItem.find('.item-price').text(" - $" + (price * (currentQuantity + quantity)).toFixed(2));
+        listItem.find('.item-price').text(" - £" + (price * (currentQuantity + quantity)).toFixed(2));
     } else {
         listItem = $('<li>').attr({
             'data-product-id': productId,
@@ -75,7 +75,7 @@ function addToCart(name, price, productId, quantity) {
         });
         $('<span>').addClass('item-name').text(name).appendTo(listItem);
         $('<span>').addClass('item-quantity').text('x ' + quantity).appendTo(listItem);
-        $('<span>').addClass('item-price').text(" - $" + (price * quantity).toFixed(2)).appendTo(listItem);
+        $('<span>').addClass('item-price').text(" - £" + (price * quantity).toFixed(2)).appendTo(listItem);
         $('#shoppingCart').append(listItem);
     }
     updateTotalCost();

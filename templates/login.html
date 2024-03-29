@@ -27,7 +27,7 @@
     {% endif %}
 {% endwith %}
 <body>
-    <nav>
+    <header>
         <nav>
             <a href="/">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
@@ -37,16 +37,16 @@
             <a href="{{ url_for('shop') }}">Shop</a>
             <a href="{{ url_for('contact') }}">Contact</a>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('account') }}">Account</a>
-            {% if current_user.role == 'admin' %}
-            <a href="{{ url_for('admin_users') }}">Users</a>
-            {% endif %}
-            <a href="{{ url_for('logout') }}">Logout</a>
+                <a href="{{ url_for('account') }}">Account</a>
+                {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin_users') }}">Users</a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}">Logout</a>
             {% else %}
-            <a href="{{ url_for('login') }}">Login</a>
+                <a href="{{ url_for('login') }}">Login</a>
             {% endif %}
         </nav>
-    </nav>
+        </header>
     <div>
         <div id="login-form">
             <h2>Login Form</h2>
