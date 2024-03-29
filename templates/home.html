@@ -26,23 +26,37 @@
         {% endif %}
     </nav>
     {% if current_user.is_authenticated %}
-    <h1>You are logged in</h1>
-    <h2>User Information</h2>
-    <ul>
-        <li>Email: {{ current_user.username }}</li>
-    </ul>
-    <h2>Change Password</h2>
-    <form action="{{ url_for('change_password') }}" method="post">
-        <label for="old_password">Old Password:</label><br>
-        <input type="password" id="old_password" name="old_password"><br>
-        <label for="new_password">New Password:</label><br>
-        <input type="password" id="new_password" name="new_password"><br>
-        <input type="submit" value="Submit">
-    </form>
-    <a href="/logout">Logout</a>
+    <<div class="user-info">
+        <h2>User Information</h2>
+        <table>
+            <tr>
+                <th>Email:</th>
+                <td>{{ current_user.username }}</td> 
+            </tr>
+            <!-- You can add more rows for additional user info here -->
+        </table>
+    </div>
+    <div class="form-container">
+        <h2>Change Password</h2>
+        <form action="{{ url_for('change_password') }}" method="post">
+            <div class="form-group">
+                <label for="old_password">Old Password:</label>
+                <input type="password" id="old_password" name="old_password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password">New Password:</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Submit" class="submit-btn">
+            </div>
+        </form>
+    </div>
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
     {% else %}
     <h1>You are not logged in</h1>
+    <a href="{{ url_for('login') }}" class="login-btn">Login</a>
     {% endif %}
-    
+
 </body>
 </html>

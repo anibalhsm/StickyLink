@@ -257,3 +257,142 @@ form label {
     background-color: var(--button-hover-bg-color); /* Change background to indicate active dragging */
     border-color: var(--link-hover-color); /* More noticeable border color */
 }
+
+.user-info {
+    background: var(--form-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.user-info table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.user-info th,
+.user-info td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid var(--input-border-color);
+}
+
+.user-info th {
+    width: 20%;
+}
+
+.form-container {
+    background: var(--form-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.submit-btn, .login-btn, .logout-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: var(--button-bg-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:hover, .login-btn:hover, .logout-btn:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+.logout-btn {
+    background-color: var(--button-delete-bg-color);
+}.container {
+    max-width: 900px; /* or any other max-width you prefer */
+    margin: 0 auto; /* Center the container */
+    padding: 20px;
+}
+
+.user-management-form {
+    background-color: var(--form-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Form and form elements styling */
+form {
+    display: flex;
+    flex-direction: column; /* Stack the form items vertically */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+input[type="text"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--input-border-color);
+}
+
+input[type="submit"],
+input[type="button"] {
+    padding: 10px 20px;
+    margin-right: 10px; /* Space between buttons */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Flexbox for inline buttons */
+.form-buttons {
+    display: flex;
+    justify-content: flex-start; /* Align buttons to the start of the form */
+}
+
+/* User list styling */
+.user-list {
+    margin-top: 20px;
+    border-top: 1px solid var(--input-border-color);
+    padding-top: 20px;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between; /* Spread the user info and delete button */
+    align-items: center; /* Center items vertically */
+    margin-bottom: 10px; /* Space between user items */
+}
+
+.user-info {
+    flex-grow: 1; /* Allow user info to fill the space */
+}
+
+.delete-btn {
+    background-color: var(--button-delete-bg-color);
+}
+
+.delete-btn:hover {
+    background-color: var(--button-hover-bg-color);
+}
+
+@media (max-width: 768px) {
+    .form-buttons {
+        flex-direction: column;
+    }
+
+    input[type="submit"],
+    input[type="button"] {
+        margin-bottom: 10px;
+    }
+}

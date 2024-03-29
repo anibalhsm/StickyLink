@@ -55,7 +55,6 @@ class Product(db.Model):
 @click.argument('username')
 @with_appcontext
 def promote_to_admin(username):
-    """Promote a user to an admin role."""
     user = Users.query.filter_by(username=username).first()
     if not user:
         click.echo(f"User {username} not found.")
