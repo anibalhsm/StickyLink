@@ -9,6 +9,7 @@ from flask.cli import with_appcontext
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_login import current_user
+from uuid import uuid4
 
 
 app = Flask(__name__)
@@ -33,9 +34,12 @@ login_manager = LoginManager(app)
 mail = Mail(app)
 
 class Users(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
+    phone_number = db.Column(db.String(20), default='')  # Default value set to empty string
+    first_name = db.Column(db.String(50), default='')    # Default value set to empty string
+    last_name = db.Column(db.String(50), default='')
     role = db.Column(db.String(250), default='user')
     
     def to_dict(self):
@@ -65,9 +69,11 @@ def promote_to_admin(username):
     db.session.commit()
     click.echo(f"User {username} has been promoted to admin.")
 
+app.cli.add_command(promote_to_admin)
+
 @login_manager.user_loader
 def loader_user(user_id):
-    return Users.query.get(int(user_id))
+    return Users.query.get(user_id)
 
 @app.route('/products')
 def products():
@@ -142,7 +148,9 @@ def update_user_info():
     try:
         user_id = current_user.id
         user = Users.query.get(user_id)
-
+        user.first_name = request.form['first_name']
+        user.last_name = request.form['last_name']
+        user.phone_number = request.form['phone_number']
         if 'email' in request.form:
             user.email = request.form['email']
         db.session.commit()
@@ -246,16 +254,45 @@ def login():
 @app.route('/Register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":
-        existing_user = Users.query.filter_by(username=request.form.get("username")).first()
+        username = request.form['username']
+        password = request.form['password']
+        first_name = request.form.get('first_name', '') or ''  # Handle empty first name
+        last_name = request.form.get('last_name', '') or ''    # Handle empty last name
+        phone_number = request.form.get('phone_number', '') or ''  # Handle empty phone number
+
+        role = 'admin'
+
+        # Validate required fields
+        if not (username and password):
+            flash('Please fill out all required fields.')
+            return redirect(url_for('register'))
+
+        # Check if user already exists
+        existing_user = Users.query.filter_by(username=username).first()
         if existing_user:
-            return "Username already exists! Please choose a different username."
-        hashed_password = generate_password_hash(request.form.get("password"), method='pbkdf2:sha256')
-        user = Users(username=request.form.get("username"), password=hashed_password)
-        db.session.add(user)
+            flash('Username already exists. Please choose a different one.')
+            return redirect(url_for('register'))
+
+        # Hash the password
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        user_id = str(uuid4())  
+
+        # Create a new user with the generated ID
+        new_user = Users(id=user_id, username=username, password=hashed_password, first_name=first_name, last_name=last_name, phone_number=phone_number)
+
+        # Add the new user to the database
+        db.session.add(new_user)
+
+        # Commit changes to the database
         db.session.commit()
-        return redirect(url_for("login"))
-    else:
-        return render_template("sign_up.html")
+
+        # Redirect to login page after successful registration
+        flash('Registration successful. Please log in.')
+        return redirect(url_for('login'))
+    
+    # Handle GET request (display registration form)
+    return render_template('login.html')
+
 
 @app.route('/Account')
 @login_required
@@ -289,7 +326,8 @@ def contact():
         return render_template('contact.html')
     
 
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=False)
+    app.run(debug=True)
