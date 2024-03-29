@@ -1,40 +1,34 @@
 $(document).ready(function() {
-    // Enhance drag and drop functionality
     $('#image-upload')
         .on('dragover', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).addClass('dragging'); // Add class for visual feedback
+            $(this).addClass('dragging'); 
         })
         .on('dragleave', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).removeClass('dragging'); // Remove class when not dragging
+            $(this).removeClass('dragging'); 
         })
         .on('drop', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            $(this).removeClass('dragging'); // Remove class on drop
+            $(this).removeClass('dragging'); 
             let files = e.originalEvent.dataTransfer.files;
-            // Display the first file as an image preview, if available
             if (files.length > 0) {
                 displayImage(files[0]);
             }
         });
 
-    // Open file explorer when clicking on the drag and drop area
     $('#image-upload').on('click', function(e) {
-        // This line prevents the file input click from bubbling up and potentially causing an infinite loop
         e.stopPropagation();
         $('#image').trigger('click');
     });
 
-    // Prevent the file input click from further propagation to avoid any potential infinite loop
     $('#image').on('click', function(e) {
         e.stopPropagation();
     });
 
-    // Handle file input changes to display the image
     $('#image').change(function() {
         if (this.files && this.files[0]) {
             displayImage(this.files[0]);
@@ -58,17 +52,14 @@ $(document).ready(function() {
     }
 });
 
-// Function to toggle form visibility
 function toggleForm() {
     $('#addProductForm').toggleClass('hidden');
 }
 
-// Function to toggle cart visibility
 function toggleCartVisibility() {
     $('#cartSection').toggle();
 }
 
-// Function to add items to the cart
 function addToCart(name, price, productId, quantity) {
     var listItem = $('#shoppingCart').find('[data-product-id="' + productId + '"]');
     if (listItem.length) {
@@ -91,7 +82,6 @@ function addToCart(name, price, productId, quantity) {
 }
 
 
-// Function to update total cost
 function updateTotalCost() {
     var total = 0;
     $('#shoppingCart li').each(function() {
@@ -99,17 +89,16 @@ function updateTotalCost() {
         var quantity = parseInt($(this).attr('data-quantity'), 10);
         total += price * quantity;
     });
-    $('#shoppingCartTotal').text("Total: $" + total.toFixed(2));
+    $('#shoppingCartTotal').text("Total: £" + total.toFixed(2));
 }
 
-// Function to delete a product
 function deleteProduct(productId) {
     $.ajax({
         url: '/delete_product/' + encodeURIComponent(productId),
         type: 'DELETE',
         success: function() {
             console.log('Product deleted successfully');
-            location.reload(); // Refresh the page to update the UI
+            location.reload(); 
         },
         error: function(xhr) {
             console.error('Request failed. Returned status of ' + xhr.status);

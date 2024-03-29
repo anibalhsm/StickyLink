@@ -1,5 +1,4 @@
 window.onload = function() {
-    // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
 
     xhr.open('GET', '/get_users', true);
@@ -35,8 +34,7 @@ function updateUserRole() {
     var role = form.elements['role'].value;
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/change_role', true); // Change PUT to POST
-
+    xhr.open('POST', '/change_role', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onload = function() {
@@ -58,10 +56,7 @@ function resetPassword(username) {
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log('Password reset successfully');
-            // Optionally, display a message to the user indicating success
-        } else {
             console.error('Password reset failed. Returned status of ' + xhr.status);
-            // Optionally, display an error message to the user
         }
     };
 
@@ -89,6 +84,6 @@ function deleteUser(username) {
 
 
 document.getElementById('userForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent default form submission
-    updateUserRole(); // Call function to update user role
+    event.preventDefault();
+    updateUserRole(); 
 });
