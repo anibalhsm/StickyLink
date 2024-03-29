@@ -49,7 +49,6 @@ $(document).ready(function() {
         addToCart(name, price, productId, quantity);
     });
 
-    // Function to display the uploaded image
     function displayImage(file) {
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -117,3 +116,9 @@ function deleteProduct(productId) {
         }
     });
 }
+
+$('#addProductBtn').on('click', function() {
+    $('#addProductForm').toggleClass('hidden');
+});
+
+

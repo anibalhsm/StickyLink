@@ -182,6 +182,9 @@ form.hidden {
     display: none;
 }
 
+.hidden {
+    display: none;
+}
 form input[type="submit"]:hover {
     background-color: var(--button-hover-bg-color); /* Slightly darker blue on hover */
 }
