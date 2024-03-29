@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
+    <header>
     <nav>
         <a href="/">
             <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo"> 
@@ -26,22 +27,41 @@
             <a href="{{ url_for('login') }}">Login</a>
         {% endif %}
     </nav>
-    <div>
-        <h2>Welcome to StickyLink!</h2>
-        <p>Thanks for visiting Sticky Link LTD. This website is still under construction. (BETA)</p>
-        <p>We specialize in Sticky Linerless Labels, the perfect solution for your adhesive label needs.</p>
-        <h2>Why Choose Sticky Linerless Labels?</h2>
-        <p>Sticky Linerless Labels are designed for situations where only an integrated printer mechanism, panel mounted unit, or even a battery-powered portable device is available.</p>
-        <h2>Overcoming Challenges</h2>
-        <p>Traditional label printing faces challenges with label registration and roll length. However, Sticky rolls are linerless and self-adhesive, eliminating the need for any registration mechanism. This makes them ideal for printing variable length labels, such as test reports.</p>
-        <h2>Full-Length Rolls</h2>
-        <p>Unlike traditional label rolls, Sticky rolls have no backing, allowing for full-length rolls to be employed. This eliminates the fiddly peeling process associated with traditional labels.</p>
-        <h2>Special Adhesive</h2>
-        <p>The rolls we supply have a specially formulated adhesive on the rear face of the paper. This adhesive doesn’t adhere to the coated front surface of the roll, so it won’t stick to itself! It’s also designed not to migrate onto the printer’s roller or the delicate thermal printhead.</p>
-        <h2>Our Selection</h2>
-        <p>The Sticky rolls listed here are only a selection of the most popular sizes. If you have any specific requirements, please don’t hesitate to contact us. We will provide you with a custom size roll.</p>
-        <h2>Place Your Order</h2>
-        <p>Our website also allows you to place orders quickly and easily. Explore our range of products and make your purchase today!</p>
-    </div>
+    </header>
+    <main>
+        <section id="hero" class="section-hero">
+            <h1>Welcome to StickyLink!</h1>
+            <p>Your trusted source for Sticky Linerless Labels.</p>
+        </section>
+        <div class="container">
+            <section class="content-section">
+                <h2>Why Choose Us?</h2>
+                <p>Designed for integrated printer mechanisms, panel units, or portable devices, our labels solve common challenges with traditional label printing.</p>
+            </section>
+            <section class="content-section">
+                <h2>Our Advantages</h2>
+                <ul class="advantages-list">
+                    <li><strong>Overcoming Challenges:</strong> Our linerless, self-adhesive rolls eliminate the need for a registration mechanism, simplifying variable length label printing.</li>
+                    <li><strong>Full-Length Rolls:</strong> Without backing paper, our rolls support full-length usage, removing the hassle of peeling.</li>
+                    <li><strong>Special Adhesive:</strong> Formulated to avoid residue on printers and enable easy handling.</li>
+                </ul>
+            </section>
+            <section class="content-section">
+                <h2>Custom Orders</h2>
+                <p>Explore our popular sizes or contact us for custom solutions tailored to your needs.</p>
+                <a href="{{ url_for('contact') }}" class="cta-button">Contact Us</a>
+            </section>
+            <section class="content-section" id="order">
+                <h2>Place Your Order</h2>
+                <p>Browse our products and order today for quick, easy solutions to your label printing needs!</p>
+                <a href="{{ url_for('products') }}" class="cta-button">Shop Now</a>
+            </section>
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 StickyLink. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>
