@@ -40,6 +40,10 @@ class Users(UserMixin, db.Model):
     phone_number = db.Column(db.String(20), default='')  
     first_name = db.Column(db.String(50), default='')    
     last_name = db.Column(db.String(50), default='')
+    address_line1 = db.Column(db.String(128), default='')
+    province = db.Column(db.String(64), default='')
+    city = db.Column(db.String(64), default='')
+    postcode = db.Column(db.String(20), default='')
     role = db.Column(db.String(250), default='user')
     
     def to_dict(self):
@@ -73,7 +77,7 @@ app.cli.add_command(promote_to_admin)
 
 @login_manager.user_loader
 def loader_user(user_id):
-    return Users.query.get(user_id)
+    return db.session.get(Users, user_id)
 
 @app.route('/products')
 def products():
@@ -151,6 +155,12 @@ def update_user_info():
         user.first_name = request.form['first_name']
         user.last_name = request.form['last_name']
         user.phone_number = request.form['phone_number']
+        user.address_line1 = request.form['address_line1']
+        user.province = request.form['province']
+        user.city = request.form['city']
+        user.postcode = request.form['postcode']
+        db.session.commit()
+        
         if 'email' in request.form:
             user.email = request.form['email']
         db.session.commit()
@@ -159,19 +169,19 @@ def update_user_info():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-@app.route('/change_role', methods=['POST'])
-def change_role():
-    username = request.form.get('username')
-    role = request.form.get('role')
+    @app.route('/change_role', methods=['POST'])
+    def change_role():
+        username = request.form.get('username')
+        role = request.form.get('role')
 
-    user = Users.query.filter_by(username=username).first()
-    if user is None:
-        return "User not found!", 404
+        user = Users.query.filter_by(username=username).first()
+        if user is None:
+            return "User not found!", 404
 
-    user.role = role
-    db.session.commit()
+        user.role = role
+        db.session.commit()
 
-    return "Role changed successfully!"
+        return "Role changed successfully!"
 
 @app.route('/delete_user/<username>', methods=['DELETE'])
 def delete_user(username):

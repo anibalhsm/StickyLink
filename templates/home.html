@@ -41,22 +41,47 @@
                 <input type="text" id="last_name" name="last_name" value="{{ current_user.last_name }}" required>
             </div>
             
-            <!-- Email -->
+            <!-- Email (non-editable) -->
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+                <label for="email">Email (non-editable):</label>
+                <input type="email" id="email" name="email" value="{{ current_user.username}}" required readonly>
             </div>
+            
             
             <!-- Phone Number -->
             <div class="form-group">
                 <label for="phone_number">Phone Number:</label>
                 <input type="text" id="phone_number" name="phone_number" value="{{ current_user.phone_number }}">
             </div>
+
+            <div class="form-group">
+                <label for="address_line1">Address Line 1:</label>
+                <input type="text" id="address_line1" name="address_line1" value="{{ current_user.address_line1 }}" required>
+            </div>
+            
+            <!-- Province -->
+            <div class="form-group">
+                <label for="province">Province:</label>
+                <input type="text" id="province" name="province" value="{{ current_user.province }}" required>
+            </div>
+            
+            <!-- City -->
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" value="{{ current_user.city }}" required>
+            </div>
+            
+            <!-- Postcode -->
+            <div class="form-group">
+                <label for="postcode">Postcode:</label>
+                <input type="text" id="postcode" name="postcode" value="{{ current_user.postcode }}" required>
+            </div>
             
             <!-- Submit Button -->
             <div class="form-group">
                 <input type="submit" value="Save Changes" class="submit-btn">
             </div>
+            
         </form>
     </div>
     <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
