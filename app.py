@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_mail import Mail, Message
@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_login import current_user
 from uuid import uuid4
-
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -32,6 +32,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 mail = Mail(app)
+timestamp = datetime.utcnow()
+
 
 class Users(UserMixin, db.Model):
     id = db.Column(db.String(36), primary_key=True)
@@ -45,6 +47,8 @@ class Users(UserMixin, db.Model):
     city = db.Column(db.String(64), default='')
     postcode = db.Column(db.String(20), default='')
     role = db.Column(db.String(250), default='user')
+    orders = db.relationship('Order', backref='user', lazy=True)
+
     
     def to_dict(self):
         return {
@@ -55,11 +59,25 @@ class Users(UserMixin, db.Model):
 class Product(db.Model):
     __tablename__ = 'product'
     __table_args__ = {'extend_existing': True}
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True) 
     name = db.Column(db.String(255))
     description = db.Column(db.Text)
     price = db.Column(db.Float)
     image_url = db.Column(db.String(255))
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    order_items = db.relationship('OrderItem', backref='order', lazy=True)
+
+class OrderItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
 
 @click.command('promote-to-admin')
 @click.argument('username')
@@ -89,10 +107,12 @@ def products():
 def add_product():
     if current_user.role != 'admin':
         return "Only admins can add products!"
-    
+
     name = request.form.get('name')
     description = request.form.get('description')
-    price = request.form.get('price')
+    
+    # Convert the price value to float
+    price = float(request.form.get('price'))
     
     default_image_url = url_for('static', filename='logo.png')
     image_url = default_image_url
@@ -107,7 +127,10 @@ def add_product():
             image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_url = url_for('static', filename='uploads/' + filename)
 
-    new_product = Product(name=name, description=description, price=price, image_url=image_url)
+    # Generate a new unique ID for the product
+    product_id = str(uuid4())
+
+    new_product = Product(id=product_id, name=name, description=description, price=price, image_url=image_url)
     db.session.add(new_product)
     db.session.commit()
     
@@ -169,19 +192,19 @@ def update_user_info():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-    @app.route('/change_role', methods=['POST'])
-    def change_role():
-        username = request.form.get('username')
-        role = request.form.get('role')
+@app.route('/change_role', methods=['POST'])
+def change_role():
+    username = request.form.get('username')
+    role = request.form.get('role')
 
-        user = Users.query.filter_by(username=username).first()
-        if user is None:
-            return "User not found!", 404
+    user = Users.query.filter_by(username=username).first()
+    if user is None:
+        return "User not found!", 404
 
-        user.role = role
-        db.session.commit()
+    user.role = role
+    db.session.commit()
 
-        return "Role changed successfully!"
+    return "Role changed successfully!"
 
 @app.route('/delete_user/<username>', methods=['DELETE'])
 def delete_user(username):
@@ -303,9 +326,6 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
-@app.route('/Shop')
-def shop():
-    return render_template('shop.html')
 
 @app.route('/Contact', methods=['GET', 'POST'])
 def contact():
@@ -324,7 +344,71 @@ def contact():
     else:
         return render_template('contact.html')
     
+@app.route('/checkout', methods=['POST'])
+@login_required
+def checkout():
+    if 'cart' not in session or not session['cart']:
+        flash('Your cart is empty!', 'warning')
+        return redirect(url_for('orders'))
 
+    try:
+        # Create a new Order instance for the current user
+        order = Order(user_id=current_user.id, total_price=0)  # Temporarily set total_price to 0
+        db.session.add(order)
+        db.session.commit()  # Commit the order creation first to get the order ID
+
+        # Initialize order total
+        order_total = 0
+
+        # Create a dictionary to store unique product IDs and their quantities
+        product_quantities = {}
+
+        # Iterate over items in the cart
+        for product_id, item in session['cart'].items():
+            product = Product.query.get(product_id)
+            if not product:
+                flash(f'Product with ID {product_id} not found.', 'error')
+                continue  # Skip this product
+
+            # Increment the quantity of the product
+            if product_id in product_quantities:
+                product_quantities[product_id] += item['quantity']
+            else:
+                product_quantities[product_id] = item['quantity']
+
+            # Calculate the total price for this item (quantity * product price)
+            item_total = item['quantity'] * product.price
+            order_total += item_total
+
+            # Create OrderItem instances for each unique product and its quantity
+            order_item = OrderItem(
+                order_id=order.id,  # Associate the order_item with the newly created order
+                product_id=product_id,
+                quantity=item['quantity'],
+                price=product.price
+            )
+            db.session.add(order_item)
+
+        # Update the order's total price
+        order.total_price = order_total
+        db.session.commit()
+
+        # Clear the cart
+        session.pop('cart', None)
+
+        flash('Your order has been placed successfully!', 'success')
+        return redirect(url_for('order_summary', order_id=order.id))
+
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of error
+        app.logger.error(f'Error during checkout: {e}')
+        flash('An error occurred, please try again.', 'error')
+        return redirect(url_for('cart'))  # Assuming 'cart' is a route that shows the user's cart
+    
+@app.route('/orders')
+def orders():
+    orders = Order.query.all()
+    return render_template('orders.html', orders=orders)
 
 if __name__ == '__main__':
     with app.app_context():

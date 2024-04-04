@@ -26,7 +26,50 @@ window.onload = function() {
     };
 
     xhr.send();
+
+    // Add event listener to the checkout button
+    document.getElementById('checkoutButton').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent the default form submission behavior
+        
+        // Extract cart data and send it to the server for checkout
+        var cartData = extractCartData();
+        if (cartData.length > 0) {
+            // Send a POST request to the server with cart data
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/checkout', true); // Update the URL with your Flask route for checkout
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Handle successful response (e.g., redirect to a thank you page)
+                    console.log('Checkout successful');
+                    // Redirect to a thank you page or display a success message
+                } else {
+                    // Handle error response
+                    console.error('Checkout failed:', xhr.statusText);
+                    // Display an error message to the user
+                }
+            };
+
+            xhr.send(JSON.stringify(cartData));
+        } else {
+            // Display a message to the user indicating that the cart is empty
+            alert('Your cart is empty. Please add items before proceeding to checkout.');
+        }
+    });
 };
+
+function extractCartData() {
+    var cartData = [];
+    var cartItems = document.querySelectorAll('#shoppingCart li');
+    cartItems.forEach(function(item) {
+        var productId = item.getAttribute('data-product-id');
+        var quantity = parseInt(item.getAttribute('data-quantity'), 10);
+        cartData.push({ productId: productId, quantity: quantity });
+    });
+    return cartData;
+}
+
 
 function updateUserRole() {
     var form = document.getElementById('userForm');
@@ -63,8 +106,6 @@ function resetPassword(username) {
     xhr.send();
 }
 
-
-
 function deleteUser(username) {
     var xhr = new XMLHttpRequest();
 
@@ -81,7 +122,6 @@ function deleteUser(username) {
 
     xhr.send();
 }
-
 
 document.getElementById('userForm').addEventListener('submit', function(event) {
     event.preventDefault();

@@ -64,9 +64,10 @@ function addToCart(name, price, productId, quantity) {
     var listItem = $('#shoppingCart').find('[data-product-id="' + productId + '"]');
     if (listItem.length) {
         var currentQuantity = parseInt(listItem.attr('data-quantity'));
-        listItem.attr('data-quantity', currentQuantity + quantity);
-        listItem.find('.item-quantity').text('x ' + (currentQuantity + quantity));
-        listItem.find('.item-price').text(" - £" + (price * (currentQuantity + quantity)).toFixed(2));
+        var newQuantity = currentQuantity + quantity;
+        listItem.attr('data-quantity', newQuantity);
+        listItem.find('.item-quantity').text('x ' + newQuantity);
+        listItem.find('.item-price').text(" - £" + (price * newQuantity).toFixed(2));
     } else {
         listItem = $('<li>').attr({
             'data-product-id': productId,
@@ -80,7 +81,6 @@ function addToCart(name, price, productId, quantity) {
     }
     updateTotalCost();
 }
-
 
 function updateTotalCost() {
     var total = 0;
@@ -109,5 +109,3 @@ function deleteProduct(productId) {
 $('#addProductBtn').on('click', function() {
     $('#addProductForm').toggleClass('hidden');
 });
-
-
