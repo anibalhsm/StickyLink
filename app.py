@@ -37,8 +37,8 @@ class Users(UserMixin, db.Model):
     id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(250), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
-    phone_number = db.Column(db.String(20), default='')  # Default value set to empty string
-    first_name = db.Column(db.String(50), default='')    # Default value set to empty string
+    phone_number = db.Column(db.String(20), default='')  
+    first_name = db.Column(db.String(50), default='')    
     last_name = db.Column(db.String(50), default='')
     role = db.Column(db.String(250), default='user')
     
@@ -256,41 +256,30 @@ def register():
     if request.method == "POST":
         username = request.form['username']
         password = request.form['password']
-        first_name = request.form.get('first_name', '') or ''  # Handle empty first name
-        last_name = request.form.get('last_name', '') or ''    # Handle empty last name
-        phone_number = request.form.get('phone_number', '') or ''  # Handle empty phone number
+        first_name = request.form.get('first_name', '') or ''  
+        last_name = request.form.get('last_name', '') or ''    
+        phone_number = request.form.get('phone_number', '') or ''  
 
-        role = 'admin'
+        role = 'user'
 
-        # Validate required fields
         if not (username and password):
             flash('Please fill out all required fields.')
             return redirect(url_for('register'))
 
-        # Check if user already exists
         existing_user = Users.query.filter_by(username=username).first()
         if existing_user:
             flash('Username already exists. Please choose a different one.')
             return redirect(url_for('register'))
 
-        # Hash the password
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
         user_id = str(uuid4())  
-
-        # Create a new user with the generated ID
         new_user = Users(id=user_id, username=username, password=hashed_password, first_name=first_name, last_name=last_name, phone_number=phone_number)
-
-        # Add the new user to the database
         db.session.add(new_user)
-
-        # Commit changes to the database
         db.session.commit()
 
-        # Redirect to login page after successful registration
         flash('Registration successful. Please log in.')
         return redirect(url_for('login'))
     
-    # Handle GET request (display registration form)
     return render_template('login.html')
 
 
@@ -318,7 +307,7 @@ def contact():
 
         msg = Message(subject=subject, 
                       sender=email,
-                      recipients=['anibal.rodriguez@sticky-link.com'])
+                      recipients=['contact@sticky-link.com'])
         msg.body = f'From: {name} <{email}>\n\n{message}'
         mail.send(msg)
         return redirect(url_for('contact')) 
