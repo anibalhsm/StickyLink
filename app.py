@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from flask_mail import Mail, Message
@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from flask_login import current_user
 from uuid import uuid4
 from datetime import datetime
+
 
 app = Flask(__name__)
 
@@ -284,6 +285,7 @@ def login():
 
     return render_template("login.html")
 
+
 @app.route('/Register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":
@@ -344,66 +346,58 @@ def contact():
     else:
         return render_template('contact.html')
     
+
 @app.route('/checkout', methods=['POST'])
 @login_required
 def checkout():
-    if 'cart' not in session or not session['cart']:
-        flash('Your cart is empty!', 'warning')
-        return redirect(url_for('orders'))
+    # Ensure the request contains JSON data
+    if not request.is_json:
+        return jsonify({'status': 'error', 'message': 'Request data must be JSON.'}), 415
+
+    data = request.get_json()
+    items = data.get('items')  # Correctly access the items list
+    print(items)
+
+    if not items:
+        return jsonify({'status': 'error', 'message': 'Your cart is empty!'}), 400
 
     try:
         # Create a new Order instance for the current user
-        order = Order(user_id=current_user.id, total_price=0)  # Temporarily set total_price to 0
+        order = Order(user_id=current_user.id, total_price=0)
         db.session.add(order)
-        db.session.commit()  # Commit the order creation first to get the order ID
+        db.session.flush()  # Use flush() to get the order ID without committing the transaction
 
-        # Initialize order total
-        order_total = 0
+        order_total = 0  # Initialize order total
 
-        # Create a dictionary to store unique product IDs and their quantities
-        product_quantities = {}
+        # Corrected iteration over items
+        for item in items:
+            product_id = item.get('productId')  # Ensure this matches your client-side data structure
+            quantity = item.get('quantity', 0)
 
-        # Iterate over items in the cart
-        for product_id, item in session['cart'].items():
+            # Fetch the product based on product_id
             product = Product.query.get(product_id)
             if not product:
-                flash(f'Product with ID {product_id} not found.', 'error')
-                continue  # Skip this product
+                continue  # Skip this item if the product is not found
 
-            # Increment the quantity of the product
-            if product_id in product_quantities:
-                product_quantities[product_id] += item['quantity']
-            else:
-                product_quantities[product_id] = item['quantity']
-
-            # Calculate the total price for this item (quantity * product price)
-            item_total = item['quantity'] * product.price
+            item_total = quantity * product.price
             order_total += item_total
 
-            # Create OrderItem instances for each unique product and its quantity
-            order_item = OrderItem(
-                order_id=order.id,  # Associate the order_item with the newly created order
-                product_id=product_id,
-                quantity=item['quantity'],
-                price=product.price
-            )
+            # Create a new OrderItem instance for each item
+            order_item = OrderItem(order_id=order.id, product_id=product_id, quantity=quantity, price=product.price)
             db.session.add(order_item)
 
-        # Update the order's total price
+        # Update and commit the total price of the order
         order.total_price = order_total
         db.session.commit()
-
-        # Clear the cart
-        session.pop('cart', None)
-
-        flash('Your order has been placed successfully!', 'success')
-        return redirect(url_for('order_summary', order_id=order.id))
+        # Return a success response
+        return jsonify({'status': 'success', 'order_id': order.id})
 
     except Exception as e:
-        db.session.rollback()  # Rollback in case of error
-        app.logger.error(f'Error during checkout: {e}')
-        flash('An error occurred, please try again.', 'error')
-        return redirect(url_for('cart'))  # Assuming 'cart' is a route that shows the user's cart
+        # Rollback in case of error
+        db.session.rollback()
+        current_app.logger.error(f'Error during checkout: {e}')
+        return jsonify({'status': 'error', 'message': 'An error occurred, please try again.'}), 500
+
     
 @app.route('/orders')
 def orders():

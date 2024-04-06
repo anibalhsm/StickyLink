@@ -71,8 +71,7 @@
             <h2>Existing Products</h2>
             <ul class="products">
                 {% for product in products %}
-                <li class="product-card">
-                    <div class="product-info">
+                <li class="product-card" data-product-id="{{ product.id }}">                    <div class="product-info">
                         <strong>{{ product.name }}</strong><br>
                         {{ product.description }}<br>
                         Price: £{{ product.price }}<br>

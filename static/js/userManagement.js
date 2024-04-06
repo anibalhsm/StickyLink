@@ -27,70 +27,75 @@ window.onload = function() {
 
     xhr.send();
 
-    // Add event listener to the checkout button
+
     document.getElementById('checkoutButton').addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent the default form submission behavior
-        
-        // Extract cart data and send it to the server for checkout
-        var cartData = extractCartData();
+        e.preventDefault(); // Prevent form submission which does not include JSON body
+        const cartData = extractCartData();
         if (cartData.length > 0) {
-            // Send a POST request to the server with cart data
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/checkout', true); // Update the URL with your Flask route for checkout
-            xhr.setRequestHeader('Content-Type', 'application/json');
-
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Handle successful response (e.g., redirect to a thank you page)
-                    console.log('Checkout successful');
-                    // Redirect to a thank you page or display a success message
-                } else {
-                    // Handle error response
-                    console.error('Checkout failed:', xhr.statusText);
-                    // Display an error message to the user
+            console.log(JSON.stringify({items: cartData}));
+            fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({items: cartData}),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Checkout failed with status: ${response.status}`);
                 }
-            };
-
-            xhr.send(JSON.stringify(cartData));
+                return response.json();
+            })
+            .then(data => {
+                console.log('Checkout successful', data);
+                alert('Checkout successful!');
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Checkout failed. Please try again.');
+            });
         } else {
-            // Display a message to the user indicating that the cart is empty
             alert('Your cart is empty. Please add items before proceeding to checkout.');
         }
     });
-};
+    
+    function extractCartData() {
+        const cartData = [];
+        document.querySelectorAll('#shoppingCart li').forEach(item => {
+            const productId = item.getAttribute('data-product-id');  // Correctly capturing the product ID
+            const quantityInput = item.querySelector('.quantity-input'); // Finding the quantity input for this item
+            const quantity = quantityInput ? parseInt(quantityInput.value, 10) : 0; // Parsing its value to an integer, defaulting to 0 if not found
+            if (!isNaN(quantity) && quantity > 0) { // Ensure quantity is a valid number greater than 0
+                cartData.push({ productId, quantity }); // Pushing an object with productId and quantity
+            }
+        });
+        return cartData;
+    }
 
-function extractCartData() {
-    var cartData = [];
-    var cartItems = document.querySelectorAll('#shoppingCart li');
-    cartItems.forEach(function(item) {
-        var productId = item.getAttribute('data-product-id');
-        var quantity = parseInt(item.getAttribute('data-quantity'), 10);
-        cartData.push({ productId: productId, quantity: quantity });
-    });
-    return cartData;
-}
-
-
-function updateUserRole() {
-    var form = document.getElementById('userForm');
-    var username = form.elements['username'].value;
-    var role = form.elements['role'].value;
-
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/change_role', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log('User role updated successfully');
-            location.reload();
-        } else {
-            console.error('Request failed. Returned status of ' + xhr.status);
-        }
-    };
-
-    xhr.send('username=' + encodeURIComponent(username) + '&role=' + encodeURIComponent(role));
-}
+    function updateUserInfo() {
+        var form = document.getElementById('userInfoForm');
+        var formData = new FormData(form);
+    
+        var object = {};
+        formData.forEach((value, key) => object[key] = value);
+        var json = JSON.stringify(object);
+    
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/update_user_info', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+    
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log('User information updated successfully');
+                location.reload();
+            } else {
+                console.error('Request failed. Returned status of ' + xhr.status);
+            }
+        };
+    
+        xhr.send(json);
+    }    
 
 function resetPassword(username) {
     var xhr = new XMLHttpRequest();
@@ -99,6 +104,7 @@ function resetPassword(username) {
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log('Password reset successfully');
+        } else {
             console.error('Password reset failed. Returned status of ' + xhr.status);
         }
     };
@@ -125,7 +131,7 @@ function deleteUser(username) {
 
 document.getElementById('userForm').addEventListener('submit', function(event) {
     event.preventDefault();
-    updateUserRole(); 
+    updateUserRole();
 });
 
 function updateUserInfo() {
@@ -139,7 +145,7 @@ function updateUserInfo() {
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log('User information updated successfully');
-            location.reload(); // Reload the page to reflect changes
+            location.reload(); 
         } else {
             console.error('Request failed. Returned status of ' + xhr.status);
         }
@@ -154,8 +160,10 @@ function updateUserInfo() {
     xhr.send(json);
 }
 
-// Add event listener for the user info form submission
 document.getElementById('userInfoForm').addEventListener('submit', function(event) {
     event.preventDefault();
     updateUserInfo();
 });
+
+}
+
