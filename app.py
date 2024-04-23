@@ -350,54 +350,54 @@ def contact():
 @app.route('/checkout', methods=['POST'])
 @login_required
 def checkout():
-    # Ensure the request contains JSON data
     if not request.is_json:
         return jsonify({'status': 'error', 'message': 'Request data must be JSON.'}), 415
 
     data = request.get_json()
-    items = data.get('items')  # Correctly access the items list
-    print(items)
+    print(data)
 
+    items = data.get('items', [])
     if not items:
         return jsonify({'status': 'error', 'message': 'Your cart is empty!'}), 400
 
     try:
-        # Create a new Order instance for the current user
         order = Order(user_id=current_user.id, total_price=0)
         db.session.add(order)
-        db.session.flush()  # Use flush() to get the order ID without committing the transaction
+        db.session.flush()
 
-        order_total = 0  # Initialize order total
+        total_price = 0
+        item_details = []
 
-        # Corrected iteration over items
         for item in items:
-            product_id = item.get('productId')  # Ensure this matches your client-side data structure
-            quantity = item.get('quantity', 0)
-
-            # Fetch the product based on product_id
-            product = Product.query.get(product_id)
+            product = Product.query.get(item.get('productId'))
             if not product:
-                continue  # Skip this item if the product is not found
+                continue  
+
+            quantity = item.get('quantity', 0)
+            if quantity <= 0:
+                continue
 
             item_total = quantity * product.price
-            order_total += item_total
+            total_price += item_total
 
-            # Create a new OrderItem instance for each item
-            order_item = OrderItem(order_id=order.id, product_id=product_id, quantity=quantity, price=product.price)
+            order_item = OrderItem(order_id=order.id, product_id=product.id, quantity=quantity, price=product.price)
             db.session.add(order_item)
 
-        # Update and commit the total price of the order
-        order.total_price = order_total
+            item_details.append({
+                'product_id': product.id,
+                'quantity': quantity,
+                'item_total': item_total
+            })
+
+        order.total_price = total_price
         db.session.commit()
-        # Return a success response
-        return jsonify({'status': 'success', 'order_id': order.id})
+
+        return jsonify({'status': 'success', 'order_id': order.id, 'items': item_details, 'total_price': total_price})
 
     except Exception as e:
-        # Rollback in case of error
         db.session.rollback()
         current_app.logger.error(f'Error during checkout: {e}')
-        return jsonify({'status': 'error', 'message': 'An error occurred, please try again.'}), 500
-
+        return jsonify({'status': 'error', 'message': str(e)}), 500
     
 @app.route('/orders')
 def orders():
