@@ -109,3 +109,59 @@ function deleteProduct(productId) {
 $('#addProductBtn').on('click', function() {
     $('#addProductForm').toggleClass('hidden');
 });
+
+function setupEventListeners() {
+    document.getElementById('checkoutButton').addEventListener('click', handleCheckout);
+    document.getElementById('userInfoForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        updateUserInfo();
+    });
+}
+function handleCheckout() {
+    const cartData = extractCartData();
+    if (cartData.length > 0) {
+        fetchCheckoutData(cartData);
+    } else {
+        alert('Your cart is empty. Please add items before proceeding to checkout.');
+    }
+}
+
+function extractCartData() {
+    const cartData = [];
+    document.querySelectorAll('#shoppingCart li').forEach(item => {
+        const productId = item.getAttribute('data-product-id');
+        const quantity = parseInt(item.getAttribute('data-quantity'), 10);
+        if (!isNaN(quantity) && quantity > 0) {
+            cartData.push({ productId, quantity });
+        }
+    });
+    return cartData;
+}
+
+function fetchCheckoutData(cartData) {
+    // Debugging: Log the cart data to be sent
+    console.log('Sending checkout data:', JSON.stringify({items: cartData}));
+
+    fetch('/checkout', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({items: cartData}),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Checkout failed with status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Checkout successful', data);
+        alert('Checkout successful!');
+    })
+    .catch(error => {
+        console.error('Checkout failed:', error);
+        alert('Checkout failed. Please try again.');
+    });
+}

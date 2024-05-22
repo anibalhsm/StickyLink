@@ -7,7 +7,6 @@
     <title>StickyLink</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </head>
 <body>
 <header>
@@ -71,7 +70,8 @@
             <h2>Existing Products</h2>
             <ul class="products">
                 {% for product in products %}
-                <li class="product-card" data-product-id="{{ product.id }}">                    <div class="product-info">
+                <li class="product-card" data-product-id="{{ product.id }}">
+                    <div class="product-info">
                         <strong>{{ product.name }}</strong><br>
                         {{ product.description }}<br>
                         Price: £{{ product.price }}<br>
@@ -93,11 +93,10 @@
             <h2>Shopping Cart</h2>
             <ul id="shoppingCart"></ul>
             <div id="shoppingCartTotal">Total: £0.00</div>
-            <form action="{{ url_for('checkout') }}" method="post">
-                <button type="submit" id="checkoutButton">Checkout</button>
-            </form>
+            <button class="checkout" onclick="handleCheckout()">Checkout</button>
         </div>
     </div>
 </main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>
